@@ -1,4 +1,5 @@
 import chalk from "chalk";
+import figlet from "figlet";
 import readlineSync from "readline-sync";
 
 class Player {
@@ -18,9 +19,6 @@ class Player {
   }
 
   statReroll() {
-    //1. 스탯을 전부 더해 올스탯변수에 저장. 2. 1부터 올스탯 사이의 랜덤숫자 뽑기. 뽑힌숫자만큼 올스탯에서 뺴주기. 3.스탯의 갯수만큼 돌려서 모든 스탯에 재분배.
-    //????? 이거 이러면 처음에 돌리는 스탯이 무조건 센거아냐????? Tip word - 균등분배
-
     let allStat = this.str + this.int + this.dex + this.luk;
     let statArr = [, , , ,];
 
@@ -39,7 +37,7 @@ class Player {
         statArr[1])} Dex:${(this.dex = statArr[2])} Luk:${(this.luk =
         statArr[3])}`
     );
-  }
+  } // 플레이어 스탯 리롤 함수
 
   LvUP() {
     this.level += 1;
@@ -50,11 +48,10 @@ class Player {
     this.dex += 1;
     this.luk += 1;
     console.log(`레벨업! 모든 스탯 +1!`);
-  }
-
+  } // 플레이어 레벨업 함수
   attack(monster) {
     monster.hp -= this.MnDamage;
-  }
+  } // 플레이어 공격 함수
 
   run() {
     if (50 < Math.floor(Math.random() * 100 + 1)) {
@@ -62,11 +59,12 @@ class Player {
     } else {
       return false;
     }
-  }
+  } // 플레이어 도주 함수
 
-  Defence() {
+  defence() {
     this.isDef = true;
-  }
+  } // 플레이어 방어 함수
+  counter() {}
 }
 
 class Monster {
@@ -79,7 +77,7 @@ class Monster {
   patternSelect() {
     let result = Math.round(Math.random() * (2 - 1) + 1);
     return result;
-  }
+  } // 몬스터 패턴 정하기 함수
 
   attack(player) {
     this.isblocked = false;
@@ -91,7 +89,7 @@ class Monster {
     }
 
     return this.isblocked;
-  }
+  } // 몬스터 공격 함수
 
   smash(player) {
     this.isblocked = false;
@@ -104,17 +102,17 @@ class Monster {
     }
 
     return this.isblocked;
-  }
+  } // 몬스터 강공격 패턴 함수
 }
 
 function sleep(sec) {
   return new Promise((resolve) => setTimeout(resolve, sec * 1000));
-}
+} // 슬립 함수
 
 const RoleDice = function () {
   let result = Math.round(Math.random() * (6 - 1) + 1);
   return result;
-};
+}; // 주사위 굴리기 함수
 
 let EncounterQuests = function (player, stage) {
   let ranNum = Math.round(Math.random() * (3 - 1) + 1);
@@ -192,7 +190,7 @@ let EncounterQuests = function (player, stage) {
       break;
   }
   return ranNum;
-};
+}; // 몬스터 조우 퀘스트 목록 함수
 
 const EncounterScene = async (player, stage) => {
   let logs = [];
@@ -212,11 +210,11 @@ const EncounterScene = async (player, stage) => {
 
     if (selectedQuest == 1) {
       console.log(
-        `예상 확률 : ${30 + player.str + diceResult}%(+${diceResult}).`
+        `예상 확률 : ${20 + player.str + diceResult}%(+${diceResult}).`
       );
 
       await sleep(1);
-      let Add = 30 + player.str + diceResult;
+      let Add = 20 + player.str + diceResult;
 
       if (Add < Math.round(Math.random() * (100 - 1) + 1)) {
         console.log(`-성공: 아아. 이것이 "패기" 라는것이다.`);
@@ -227,11 +225,11 @@ const EncounterScene = async (player, stage) => {
       }
     } else if (selectedQuest == 2) {
       console.log(
-        `예상 확률 : ${30 + player.int + diceResult}%(+${diceResult}).`
+        `예상 확률 : ${20 + player.int + diceResult}%(+${diceResult}).`
       );
 
       await sleep(1);
-      let Add = 30 + player.int + diceResult;
+      let Add = 20 + player.int + diceResult;
 
       if (Add < Math.round(Math.random() * (100 - 1) + 1)) {
         console.log(`-성공: 스마트하게 가자 스마트하게~`);
@@ -245,11 +243,11 @@ const EncounterScene = async (player, stage) => {
       }
     } else if (selectedQuest == 3) {
       console.log(
-        `예상 확률 : ${30 + player.dex + diceResult}%(+${diceResult}).`
+        `예상 확률 : ${20 + player.dex + diceResult}%(+${diceResult}).`
       );
 
       await sleep(1);
-      let Add = 30 + player.dex + diceResult;
+      let Add = 20 + player.dex + diceResult;
 
       if (Add < Math.round(Math.random() * (100 - 1) + 1)) {
         console.log(`-성공: 아무도 날 막을순 없으셈ㅋㅋ`);
@@ -260,7 +258,7 @@ const EncounterScene = async (player, stage) => {
       }
     }
   }
-};
+}; // 몬스터 조우 씬 함수
 
 function displayStatus(stage, player, monster) {
   console.log(chalk.magentaBright(`\n=== Current Status ===`));
@@ -275,7 +273,7 @@ Stat: [ Str:${player.str} Int:${player.int} Dex:${player.dex} Luk:${player.luk} 
       )
   );
   console.log(chalk.magentaBright(`=====================\n`));
-}
+} // 배틀 화면 함수
 
 const battle = async (stage, player, monster) => {
   let logs = [];
@@ -286,19 +284,17 @@ const battle = async (stage, player, monster) => {
 
     logs.forEach((log) => console.log(log));
 
-    console.log(
-      chalk.green(`\n1. 공격한다 2. 도망친다. 3. 방어 4. PlayerSkill[구현중]`)
-    );
+    console.log(chalk.green(`\n1. 공격한다 2. 도망친다. 3. 방어 4. 연속공격`));
     const choice = readlineSync.question("당신의 선택은? ");
 
     // 플레이어의 선택에 따라 다음 행동 처리
     switch (choice) {
       case "1":
         logs.push(chalk.green(`${choice}를 선택하셨습니다.`));
-        // 1. 공격구현
         logs.push(chalk.white(`플레이어의 공격! ${player.MnDamage}의 데미지!`));
         player.attack(monster);
         break;
+      // 1. 공격구현
 
       case "2":
         logs.push(chalk.green(`${choice}를 선택하셨습니다.`));
@@ -316,14 +312,39 @@ const battle = async (stage, player, monster) => {
       case "3":
         logs.push(chalk.green(`${choice}를 선택하셨습니다.`));
         console.log(`방어를 시도합니다.`);
-        player.Defence();
+        player.defence();
         await sleep(1);
 
         break;
       // 3. 방어 구현
 
+      case "4":
+        logs.push(chalk.green(`${choice}를 선택하셨습니다.`));
+
+        console.log(`연속공격을 시도합니다.
+[ 확률 계산식 : 기초확률 + 플레이어의 Luk값: ${player.luk}. ]`);
+        let Luckibiki = 20 + player.luk;
+        await sleep(1);
+        if (Luckibiki < Math.round(Math.random() * (100 - 1) + 1)) {
+          logs.push(`공격 성공!!`);
+          logs.push(
+            chalk.white(`플레이어의공격! ${player.MnDamage}의 데미지!`)
+          );
+          player.attack(monster);
+          logs.push(
+            chalk.white(`플레이어의공격! ${player.MnDamage}의 데미지!`)
+          );
+          player.attack(monster);
+          await sleep(1);
+        } else {
+          logs.push(chalk.white(`공격이 빗나갔다!!`));
+        }
+        break;
+
       default:
-        console.log(chalk.red("올바른 선택을 하세요."));
+        break;
+
+      //4. 연속 공격 구현
     }
 
     //몬스터 반응 구간.
@@ -341,8 +362,8 @@ const battle = async (stage, player, monster) => {
           chalk.red(`|플레이어 체력 : ${player.hp}| 몬스터 체력 : ${monster.hp}|
         `)
         );
-
         break;
+      //몬스터 일반 공격 구현.
 
       case 2:
         if (monster.smash(player) == true) {
@@ -364,8 +385,8 @@ const battle = async (stage, player, monster) => {
           chalk.red(`|플레이어 체력 : ${player.hp}| 몬스터 체력 : ${monster.hp}|
       `)
         );
-
         break;
+      //몬스터 스매시 공격 구현.
 
       default:
         break;
@@ -385,8 +406,85 @@ const battle = async (stage, player, monster) => {
       player.LvUP();
     }
     await sleep(2);
-  }
-};
+  } // 스테이지 클리어 보상 구현
+}; // 메인 배틀씬 함수
+
+function GameOver() {
+  console.clear();
+
+  console.log(
+    chalk.red(`
+                   uuuuuuu
+               uu$$$$$$$$$$$uu
+            uu$$$$$$$$$$$$$$$$$uu
+           u$$$$$$$$$$$$$$$$$$$$$u
+          u$$$$$$$$$$$$$$$$$$$$$$$u
+         u$$$$$$$$$$$$$$$$$$$$$$$$$u
+         u$$$$$$$$$$$$$$$$$$$$$$$$$u
+         u$$$$$$"   "$$$"   "$$$$$$u
+         "$$$$"      u$u       $$$$"
+          $$$u       u$u       u$$$
+          $$$u      u$$$u      u$$$
+           "$$$$uu$$$   $$$uu$$$$"
+            "$$$$$$$"   "$$$$$$$"
+              u$$$$$$$u$$$$$$$u
+               u$"$"$"$"$"$"$u
+    uuu        $$u$ $ $ $ $u$$       uuu
+   u$$$$        $$$$$u$u$u$$$       u$$$$
+    $$$$$uu      "$$$$$$$$$"     uu$$$$$$
+  u$$$$$$$$$$$uu    """""    uuuu$$$$$$$$$$
+  $$$$"""$$$$$$$$$$uuu   uu$$$$$$$$$"""$$$"
+   """      ""$$$$$$$$$$$uu ""$"""
+             uuuu ""$$$$$$$$$$uuu
+    u$$$uuu$$$$$$$$$uu ""$$$$$$$$$$$uuu$$$
+    $$$$$$$$$$""""           ""$$$$$$$$$$$"
+     "$$$$$"                      ""$$$$""
+       $$$"                         $$$$"`)
+  );
+
+  console.log(
+    chalk.redBright.bold(
+      figlet.textSync(`GAME OVER`, {
+        font: "pagga",
+        horizontalLayout: "default",
+        verticalLayout: "default",
+      })
+    )
+  );
+} // 게임 오버 함수
+
+function GameClear() {
+  console.clear();
+
+  console.log(
+    chalk.yellowBright(`⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+  ⠀⡀⠠⠀⢀⠠⠀⠀⠠⠀⢀⠠⠀⠀⠠⠀⢀⠠⠀⠀⠠⠀⢀⠠⠀⠀⠠⠀⠀⠄
+  ⠀⠀⠀⠀⠀⠀⠀⠠⠀⢀⠀⠀⠀⠠⠀⢀⠀⠀⠀⠠⠀⢀⠀⠀⠀⠠⠀⠠⠀⢀
+  ⠀⠈⠀⠈⠀⠐⠀⠀⠄⠀⠀⠀⠂⠀⡀⡀⠀⠀⠂⠀⡀⠀⢀⠀⠂⠀⡀⠀⡀⠀
+  ⠂⠐⠈⠀⠀⠂⠀⠂⠀⢀⠈⠀⢠⠋⠁⢱⠀⢁⠔⠒⠒⡄⠀⠀⡀⠀⢀⠀⠀⠀
+  ⠀⢀⠀⠠⠀⠠⠀⠠⠀⠀⢀⠀⢸⠀⠀⢸⢰⠁⠀⠀⢀⠇⠀⢀⠀⢀⠀⢀⠀⠁
+  ⠈⠀⠀⠀⡀⠀⡀⢀⠀⠈⠀⠀⣸⠀⠀⢸⠃⠀⠀⢠⠃⠀⠀⠀⠀⠀⠀⠀⢀⠠
+  ⠀⠀⡀⠂⠀⠀⠀⠀⠀⢠⠖⡏⠀⡣⠤⠚⠤⡀⠀⡇⠀⠀⠈⠀⠈⠀⠈⠀⠀⠀
+  ⠐⠀⠀⠀⡀⠄⠁⠀⠁⢸⠀⢕⠊⠀⠀⠀⠀⠱⠈⡆⠀⠀⠂⠐⠀⠈⠀⠀⠂⠀
+  ⠀⠠⠐⠀⠀⠀⠀⠠⠀⠀⡧⠬⠦⠐⠒⠫⠄⠀⢀⠇⠀⠀⠄⠀⠄⠐⠀⠁⠀⠈
+  ⠠⠀⠀⠀⠠⠐⠀⠀⠄⠀⢣⣀⡀⠀⠀⠀⠀⣀⠎⠀⠀⡀⠄⠀⢀⠀⠀⠄⠐⠀
+  ⠀⠠⠀⠁⠀⠀⢀⠠⠀⠀⠈⠢⢄⣈⡉⣉⡩⠃⠀⠀⢀⠀⠀⠀⡀⠀⠄⠀⢀⠠
+  ⠀⠀⢀⠠⠐⠈⠀⠀⠀⠀⠁⠀⠀⠀⠀⠀⠀⠀⠀⠄⠀⠀⠀⠁⠀⠀⢀⠠⠀⠀
+  ⠠⠈⠀⠀⠀⠀⠀⢀⠠⠈⠀⠀⠁⠀⠈⠀⠈⠀⠀⠄⠀⠈⠀⠠⠐⠀⠀⠀⠀⢀
+  ⠀⠀⠀⡀⠠⠀⠂⠀⠀⠀⠀⠐⠈⠀⠈⠀⠐⠈⠀⠀⠀⠁⢀⠀⢀⠀⠄⠂⠈⠀
+  ⠠⢀⠂⠄⠠⠠⠀⠀⠐⠀⠁⠀⢀⠠⠀⠂⠀⢀⠠⠀⠁⠀⢀⠀⠀⠀⠀⠀⠀⠄                                                                                                   
+  `)
+  );
+  console.log(
+    chalk.yellowBright.bold(
+      figlet.textSync(`GAME CLEAR!`, {
+        font: "pagga",
+        horizontalLayout: "default",
+        verticalLayout: "default",
+      })
+    )
+  );
+} // 게임 클리어 함수
 
 export async function startGame() {
   console.clear();
@@ -401,15 +499,19 @@ export async function startGame() {
     const monster = new Monster(stage);
     const Checker = await EncounterScene(player, stage);
 
-    // 스테이지 클리어 및 게임 종료 조건
-    //stage++; //이녀석이 체커보다 위에 있어야 스테이지가 넘어간다.
-
     if (Checker == true) {
       stage++;
       continue;
     }
-    await sleep(2);
+    await sleep(1);
     await battle(stage, player, monster);
     stage++;
   }
-}
+  if (player.hp <= 0) {
+    GameOver();
+    return;
+  } else if (stage >= 10) {
+    GameClear();
+    return;
+  } //게임 오버, 클리어 씬 구현
+} // 게임 스타트
