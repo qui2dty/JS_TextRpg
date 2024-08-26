@@ -5,13 +5,13 @@ import readlineSync from "readline-sync";
 class Player {
   constructor(name) {
     this.name = name;
-    this.hp = 100;
+    this.hp = 1000;
     this.MnDamage = 50;
     this.str = 5;
     this.int = 5;
     this.dex = 5;
     this.luk = 5;
-    this.gold = 0;
+    this.gold = 30;
     this.exp = 0;
     this.level = 1;
     this.maxExp = 10;
@@ -66,9 +66,11 @@ class Player {
   } // 플레이어 방어 함수
   counter() {}
 }
+//플레이어 클래스
 
 class Monster {
   constructor(stagelv) {
+    this.name = "noNamed";
     this.hp = 100 * stagelv;
     this.MnDamage = 10 * stagelv;
     this.isblocked = false;
@@ -104,6 +106,35 @@ class Monster {
     return this.isblocked;
   } // 몬스터 강공격 패턴 함수
 }
+//몬스터 클래스
+
+class Boss extends Monster {
+  constructor(hp, MnDamage, isblocked) {
+    super(hp, MnDamage, isblocked); //순서가 중요하다! super가 우선 넘어와서 상속해주고 나머지를 추가!
+    this.name = "오거 백인대장";
+    this.isCharged = false;
+  }
+
+  patternSelect() {
+    let result = Math.round(Math.random() * (3 - 1) + 1);
+    return result;
+  }
+
+  homeRun(player) {
+    if (this.isCharged != true) {
+      this.isCharged = true;
+    } else if (this.isCharged == true && player.isDef == true) {
+      this.hp -= this.MnDamage;
+      return false;
+    } else if (this.isCharged == true && player.isDef != true) {
+      player.hp -= this.MnDamage * 4;
+      return true;
+    }
+  }
+
+  berserk() {}
+}
+//보스 몬스터 클래스 : 몬스터 클래스 상속
 
 function sleep(sec) {
   return new Promise((resolve) => setTimeout(resolve, sec * 1000));
@@ -196,7 +227,7 @@ const EncounterScene = async (player, stage) => {
   let logs = [];
 
   console.log(chalk.yellow("Next Stage!"));
-  await sleep(1);
+  await sleep(0.5);
   let result;
   let selectedQuest = EncounterQuests(player, stage);
   const choice = readlineSync.question("당신의 선택은? ");
@@ -260,6 +291,38 @@ const EncounterScene = async (player, stage) => {
   }
 }; // 몬스터 조우 씬 함수
 
+let BossEncount = () => {
+  console.clear();
+  console.log(
+    chalk.bgRed.black.bold(`
+|WARNING|WARNING|WARNING|WARNING|WARNING|WARNING|WARNING|WARNING|WARNING|WARNING|`)
+  );
+  console.log(
+    chalk.red.bold(`                      
+    
+                        Encounter BOSS_[오거 백인대장]`)
+  );
+  console.log(
+    chalk.gray(
+      `
+  
+                 누구나 그럴싸한 계획을 가지고 있다. 쳐맞기 전까지는.
+
+  `
+    )
+  );
+
+  console.log(
+    chalk.bgRed.black.bold(`
+|WARNING|WARNING|WARNING|WARNING|WARNING|WARNING|WARNING|WARNING|WARNING|WARNING|`)
+  );
+  console.log(`                                
+                                    전투 돌입.
+          `);
+
+  const choice = readlineSync.question("엔터를 눌러 진입하세요.");
+}; //보스 몬스터 인카운트 씬
+
 function displayStatus(stage, player, monster) {
   console.log(chalk.magentaBright(`\n=== Current Status ===`));
   console.log(
@@ -269,7 +332,7 @@ function displayStatus(stage, player, monster) {
 Stat: [ Str:${player.str} Int:${player.int} Dex:${player.dex} Luk:${player.luk} ] Gold : ${player.gold}g Exp/MaxExp :${player.exp}/${player.maxExp} `
       ) +
       chalk.redBright(
-        `| 몬스터 정보 Hp: ${monster.hp} Damage: ${monster.MnDamage} |`
+        `| 몬스터 정보 name: ${monster.name} Hp: ${monster.hp} Damage: ${monster.MnDamage} |`
       )
   );
   console.log(chalk.magentaBright(`=====================\n`));
@@ -299,7 +362,11 @@ const battle = async (stage, player, monster) => {
       case "2":
         logs.push(chalk.green(`${choice}를 선택하셨습니다.`));
 
-        if (player.run() == true) {
+        if (stage == 10) {
+          console.log(chalk.redBright("도망칠 수 없다!"));
+          await sleep(0.5);
+          break;
+        } else if (player.run() == true) {
           console.log("도망치는건 부끄럽지만 도움이 된다!");
           await sleep(1);
           return;
@@ -322,17 +389,17 @@ const battle = async (stage, player, monster) => {
         logs.push(chalk.green(`${choice}를 선택하셨습니다.`));
 
         console.log(`연속공격을 시도합니다.
-[ 확률 계산식 : 기초확률 + 플레이어의 Luk값: ${player.luk}. ]`);
+  [ 확률 계산식 : 기초확률 + 플레이어의 Luk값: ${player.luk}. ]`);
         let Luckibiki = 20 + player.luk;
         await sleep(1);
         if (Luckibiki < Math.round(Math.random() * (100 - 1) + 1)) {
-          logs.push(`공격 성공!!`);
+          logs.push(chalk.yellow.bold(`공격 성공!!`));
           logs.push(
-            chalk.white(`플레이어의공격! ${player.MnDamage}의 데미지!`)
+            chalk.white(`플레이어의 공격! ${player.MnDamage}의 데미지!`)
           );
           player.attack(monster);
           logs.push(
-            chalk.white(`플레이어의공격! ${player.MnDamage}의 데미지!`)
+            chalk.white(`플레이어의 공격! ${player.MnDamage}의 데미지!`)
           );
           player.attack(monster);
           await sleep(1);
@@ -349,7 +416,14 @@ const battle = async (stage, player, monster) => {
 
     //몬스터 반응 구간.
 
-    switch (monster.patternSelect()) {
+    let SelectedPattern = 0;
+    if (monster.isCharged == true) {
+      SelectedPattern = 3;
+    } else {
+      SelectedPattern = monster.patternSelect();
+    }
+
+    switch (SelectedPattern) {
       case 1:
         if (monster.attack(player) == true) {
           logs.push(chalk.white(`방어에 막혔습니다!`));
@@ -360,7 +434,7 @@ const battle = async (stage, player, monster) => {
         }
         logs.push(
           chalk.red(`|플레이어 체력 : ${player.hp}| 몬스터 체력 : ${monster.hp}|
-        `)
+          `)
         );
         break;
       //몬스터 일반 공격 구현.
@@ -377,17 +451,45 @@ const battle = async (stage, player, monster) => {
         } else {
           logs.push(
             chalk.white(
-              `스매시 실패! ${Math.floor(monster.MnDamage * 0.5)}의 데미지!`
+              `몬스터의 스매시 실패! ${Math.floor(
+                monster.MnDamage * 0.5
+              )}의 데미지!`
             )
           );
         }
         logs.push(
           chalk.red(`|플레이어 체력 : ${player.hp}| 몬스터 체력 : ${monster.hp}|
-      `)
+        `)
         );
         break;
       //몬스터 스매시 공격 구현.
 
+      case 3:
+        let HomeRunChecker = monster.homeRun(player);
+        if (HomeRunChecker == true) {
+          logs.push(
+            chalk.bgRed.bold(
+              `버티기 힘든 한방!!!!!!!!!!!!!!!! ${
+                monster.MnDamage * 4
+              }의 데미지! `
+            )
+          );
+          monster.isCharged = false;
+        } else if (HomeRunChecker == false) {
+          logs.push(
+            chalk.white(
+              `몬스터의 공격 실패! 넘치는 힘을 주체 못하고 넘어져버렸다! ${monster.MnDamage}의 데미지!`
+            )
+          );
+          monster.isCharged = false;
+          player.isDef = false;
+        } else {
+          logs.push(chalk.red(`강력한 공격을 위해 준비에 들어간것 같다!`));
+          player.isDef = false;
+        }
+
+        break;
+      //보스 몬스터 홈런 공격 구현.
       default:
         break;
     }
@@ -405,9 +507,78 @@ const battle = async (stage, player, monster) => {
     if (player.exp >= player.maxExp) {
       player.LvUP();
     }
-    await sleep(2);
+    await sleep(1);
   } // 스테이지 클리어 보상 구현
 }; // 메인 배틀씬 함수
+
+const Shop = async (player) => {
+  console.clear();
+  let logs = [];
+  logs.push(
+    chalk.green(`==========================================================
+        `)
+  );
+  logs.push(chalk.green.bold(`떠돌이상인.`));
+  logs.push(
+    chalk.green(`어떻게 한번 골라 보시겠수?
+    `)
+  );
+  logs.push(`플레이어 소지금 : ` + chalk.yellowBright(`${player.gold}`));
+  logs.push(
+    `1.회복약 : 체력회복 + 100.` +
+      chalk.yellow(`-30g `) +
+      `2. 녹슨검 : 공격력 +50.` +
+      chalk.yellow(`-50g `) +
+      `3.그냥간다.`
+  );
+
+  logs.push(
+    chalk.green(`==========================================================
+            `)
+  );
+
+  //   logs.forEach((log) => console.log(log));
+  //   const choice = readlineSync.question("당신의 선택은? ");
+  logs.forEach((log) => console.log(log));
+  while (1) {
+    const choice = readlineSync.question("당신의 선택은? ");
+
+    switch (choice) {
+      case "1":
+        if (player.gold >= 30) {
+          player.hp += 100;
+          player.gold -= 30;
+          console.log(
+            chalk.blueBright(`플레이어의 체력이 100 회복되었다! `) +
+              chalk.yellow(`현재 소지금: ${player.gold}`)
+          );
+        } else {
+          console.log(chalk.gray(`골드가 부족합니다!`));
+        }
+        break;
+      case "2":
+        if (player.gold >= 50) {
+          player.MnDamage += 50;
+          player.gold -= 50;
+          console.log(
+            chalk.blueBright(`플레이어의 공격력 50 증가! `) +
+              chalk.yellow(`현재 소지금: ${player.gold}`)
+          );
+        } else {
+          console.log(chalk.gray(`골드가 부족합니다!`));
+        }
+        break;
+      case "3":
+        console.log(chalk.blue(`가볼까나..`));
+        await sleep(0.5);
+        return true;
+        break;
+      default:
+        console.log(chalk.red(`올바른 번호를 입력해주세요`));
+        break;
+    }
+  }
+}; // 상점 씬 함수
 
 function GameOver() {
   console.clear();
@@ -492,25 +663,39 @@ export async function startGame() {
   let input = readlineSync.question("이름을 입력해주세요: ");
   const player = new Player(input);
   player.statReroll();
-  await sleep(2);
+  await sleep(1);
   let stage = 1;
 
   while (stage <= 10 && player.hp > 0) {
-    const monster = new Monster(stage);
-    const Checker = await EncounterScene(player, stage);
+    let monster;
+    if (stage == 10) {
+      monster = new Boss(stage);
+    } else {
+      monster = new Monster(stage);
+    }
+
+    let Checker;
+
+    if (stage == 5) {
+      Checker = await Shop(player);
+    } else if (stage == 10) {
+      BossEncount();
+    } else {
+      Checker = await EncounterScene(player, stage);
+    }
 
     if (Checker == true) {
       stage++;
       continue;
     }
-    await sleep(1);
+    await sleep(0.5);
     await battle(stage, player, monster);
     stage++;
   }
   if (player.hp <= 0) {
     GameOver();
     return;
-  } else if (stage >= 10) {
+  } else {
     GameClear();
     return;
   } //게임 오버, 클리어 씬 구현
