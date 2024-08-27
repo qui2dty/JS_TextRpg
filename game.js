@@ -5,7 +5,7 @@ import readlineSync from "readline-sync";
 class Player {
   constructor(name) {
     this.name = name;
-    this.hp = 1000;
+    this.hp = 500;
     this.MnDamage = 50;
     this.str = 5;
     this.int = 5;
@@ -138,12 +138,12 @@ class Boss extends Monster {
 
 function sleep(sec) {
   return new Promise((resolve) => setTimeout(resolve, sec * 1000));
-} // 슬립 함수
+} // 시간 지연
 
 const RoleDice = function () {
   let result = Math.round(Math.random() * (6 - 1) + 1);
   return result;
-}; // 주사위 굴리기 함수
+}; // 주사위 굴리기
 
 let EncounterQuests = function (player, stage) {
   let ranNum = Math.round(Math.random() * (3 - 1) + 1);
@@ -221,7 +221,7 @@ let EncounterQuests = function (player, stage) {
       break;
   }
   return ranNum;
-}; // 몬스터 조우 퀘스트 목록 함수
+}; // 몬스터 조우 퀘스트 목록
 
 const EncounterScene = async (player, stage) => {
   let logs = [];
@@ -289,9 +289,31 @@ const EncounterScene = async (player, stage) => {
       }
     }
   }
-}; // 몬스터 조우 씬 함수
+}; // 몬스터 조우 씬
 
-let BossEncount = () => {
+let BossEncount = async () => {
+  console.clear();
+  for (let j = 0; j < 11; j++) {
+    for (let i = 0; i < 10; i++) {
+      if (j % 2 == 0) {
+        if (i % 2 == 0) {
+          process.stdout.write(chalk.bgRed.bold(`WARNING`));
+        } else {
+          process.stdout.write(chalk.red(`WARNING`));
+        }
+        await sleep(0.01);
+      } else {
+        if (i % 2 == 0) {
+          process.stdout.write(chalk.red(`WARNING`));
+        } else {
+          process.stdout.write(chalk.bgRed.bold(`WARNING`));
+        }
+        await sleep(0.01);
+      }
+    }
+    console.log();
+  } //인카운트 경고
+
   console.clear();
   console.log(
     chalk.bgRed.black.bold(`
@@ -336,7 +358,7 @@ Stat: [ Str:${player.str} Int:${player.int} Dex:${player.dex} Luk:${player.luk} 
       )
   );
   console.log(chalk.magentaBright(`=====================\n`));
-} // 배틀 화면 함수
+} // 배틀 상태창 디스플레이
 
 const battle = async (stage, player, monster) => {
   let logs = [];
@@ -509,7 +531,7 @@ const battle = async (stage, player, monster) => {
     }
     await sleep(1);
   } // 스테이지 클리어 보상 구현
-}; // 메인 배틀씬 함수
+}; // 메인 배틀씬
 
 const Shop = async (player) => {
   console.clear();
@@ -578,7 +600,7 @@ const Shop = async (player) => {
         break;
     }
   }
-}; // 상점 씬 함수
+}; // 상점 씬
 
 function GameOver() {
   console.clear();
@@ -622,7 +644,7 @@ function GameOver() {
       })
     )
   );
-} // 게임 오버 함수
+} // 게임 오버
 
 function GameClear() {
   console.clear();
@@ -655,13 +677,18 @@ function GameClear() {
       })
     )
   );
-} // 게임 클리어 함수
+} // 게임 클리어
 
 export async function startGame() {
   console.clear();
 
   let input = readlineSync.question("이름을 입력해주세요: ");
   const player = new Player(input);
+  console.log(
+    chalk.bold(`
+PlayerName: ${player.name}
+    `)
+  );
   player.statReroll();
   await sleep(1);
   let stage = 1;
@@ -679,7 +706,7 @@ export async function startGame() {
     if (stage == 5) {
       Checker = await Shop(player);
     } else if (stage == 10) {
-      BossEncount();
+      await BossEncount();
     } else {
       Checker = await EncounterScene(player, stage);
     }
