@@ -9,9 +9,9 @@ function displayLobby() {
 
   // 타이틀 텍스트
   console.log(
-    chalk.cyan(
-      figlet.textSync("RL- Javascript", {
-        font: "Standard",
+    chalk.yellow.bold(
+      figlet.textSync("TEXT-RL", {
+        font: "slant",
         horizontalLayout: "default",
         verticalLayout: "default",
       })

@@ -288,6 +288,9 @@ const EncounterScene = async (player, stage) => {
         return (result = false);
       }
     }
+  } else {
+    console.log(chalk.red("ERROR : 무슨 선택이지?"));
+    return false;
   }
 }; // 몬스터 조우 씬
 
