@@ -405,7 +405,7 @@ const battle = async (stage, player, monster) => {
         logs.push(chalk.green(`${choice}를 선택하셨습니다.`));
         console.log(`방어를 시도합니다.`);
         player.defence();
-        await sleep(1);
+        await sleep(0.5);
 
         break;
       // 3. 방어 구현
@@ -416,7 +416,7 @@ const battle = async (stage, player, monster) => {
         console.log(`연속공격을 시도합니다.
   [ 확률 계산식 : 기초확률 + 플레이어의 Luk값: ${player.luk}. ]`);
         let Luckibiki = 20 + player.luk;
-        await sleep(1);
+        await sleep(0.1);
         if (Luckibiki < Math.round(Math.random() * (100 - 1) + 1)) {
           logs.push(chalk.yellow.bold(`공격 성공!!`));
           logs.push(
@@ -427,7 +427,7 @@ const battle = async (stage, player, monster) => {
             chalk.white(`플레이어의 공격! ${player.MnDamage}의 데미지!`)
           );
           player.attack(monster);
-          await sleep(1);
+          await sleep(0.5);
         } else {
           logs.push(chalk.white(`공격이 빗나갔다!!`));
         }
@@ -457,10 +457,6 @@ const battle = async (stage, player, monster) => {
             chalk.white(`몬스터의 공격! ${monster.MnDamage}의 데미지!`)
           );
         }
-        logs.push(
-          chalk.red(`|플레이어 체력 : ${player.hp}| 몬스터 체력 : ${monster.hp}|
-          `)
-        );
         break;
       //몬스터 일반 공격 구현.
 
@@ -482,10 +478,7 @@ const battle = async (stage, player, monster) => {
             )
           );
         }
-        logs.push(
-          chalk.red(`|플레이어 체력 : ${player.hp}| 몬스터 체력 : ${monster.hp}|
-        `)
-        );
+
         break;
       //몬스터 스매시 공격 구현.
 
@@ -518,6 +511,10 @@ const battle = async (stage, player, monster) => {
       default:
         break;
     }
+    logs.push(
+      chalk.red(`|플레이어 체력 : ${player.hp}| 몬스터 체력 : ${monster.hp}|
+      `)
+    );
   }
 
   if (monster.hp == 0) {
