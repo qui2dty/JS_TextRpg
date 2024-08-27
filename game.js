@@ -1,11 +1,12 @@
 import chalk from "chalk";
 import figlet from "figlet";
 import readlineSync from "readline-sync";
+import { RoleDice } from "./rolldice.js";
 
 class Player {
   constructor(name) {
     this.name = name;
-    this.hp = 500;
+    this.hp = 800;
     this.MnDamage = 50;
     this.str = 5;
     this.int = 5;
@@ -139,11 +140,6 @@ class Boss extends Monster {
 function sleep(sec) {
   return new Promise((resolve) => setTimeout(resolve, sec * 1000));
 } // 시간 지연
-
-const RoleDice = function () {
-  let result = Math.round(Math.random() * (6 - 1) + 1);
-  return result;
-}; // 주사위 굴리기
 
 let EncounterQuests = function (player, stage) {
   let ranNum = Math.round(Math.random() * (3 - 1) + 1);
